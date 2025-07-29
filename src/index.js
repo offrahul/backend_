@@ -4,8 +4,12 @@
 import dotenv from 'dotenv';
 // import mongoose from 'mongoose';
 // import { DB_NAME } from './constants';
-import connectDb from './db/index.js';
+// import express from 'express';       // ✅ Add this line
+// const app = express(); 
 
+import {app} from './app.js';
+import connectDb from './db/index.js';
+   
 dotenv.config({ path: './.env' });
 
 connectDb().then(()=>{

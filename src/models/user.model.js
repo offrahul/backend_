@@ -50,6 +50,10 @@ const userSchema=new Schema({
 })
 
 
+
+
+
+
 //hash before saved middleware
 userSchema.pre("save",async function(next){
     if(!this.isModified("password")) return next();
@@ -57,6 +61,9 @@ userSchema.pre("save",async function(next){
     next()
 
 })
+
+
+
 
 //method
 
