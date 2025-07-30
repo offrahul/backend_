@@ -4,6 +4,9 @@ import { ApiError } from "../utils/ApiError.js";
 import {User} from "../models/user.model.js"
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { upload } from "../middlewares/multer.middleware.js";
+
+
 
 const registerUser=asyncHandler(async(req,res,next)=>{
     // const user=await User.create(req.body)
@@ -25,6 +28,7 @@ const registerUser=asyncHandler(async(req,res,next)=>{
     //return for response
 
     const {fullName,username,email,password}=req.body
+    // console.log(req.body)
    if(
     [fullName,username,email,password].some((fields)=>fields?.trim()==="")
    ){
@@ -33,7 +37,7 @@ const registerUser=asyncHandler(async(req,res,next)=>{
     
 
    //step 2
-  const existedUser= User.findOne({
+  const existedUser=await User.findOne({
     $or:[{username},{email}]
    
    })
@@ -43,10 +47,15 @@ const registerUser=asyncHandler(async(req,res,next)=>{
    }
    //step 3
 
-   const avatarLoacalPath= req.files?.avatar[0]?.path;
- const coverageLoacalPath=  req.files?.coverImage[0]?.path
+const avatarLoacalPath= req.files?.avatar[0]?.path;
 
-if(!avatarLoaclPath){
+//  const coverageLoacalPath= req.files?.coverImage[0]?.path
+let coverageLoacalPath;
+ if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length>0){
+    coverageLoacalPath=req.files.coverImage[0].path
+ }
+
+if(!avatarLoacalPath){
     throw new ApiError("Please upload avatar",400)
 }
 //upload in cloudinary
@@ -66,7 +75,7 @@ const user= await User.create({
      coverImage:coverImage?.url || ""
 })
 //remove password from user object
-const createdUser=await User.findByid(user._id).select("-password -__refreshToken")
+const createdUser=await User.findById(user._id).select("-password -__refreshToken")//- sign we dont require
 
 if(!createdUser){
     throw new ApiError("something ent user while registering the user",500)
